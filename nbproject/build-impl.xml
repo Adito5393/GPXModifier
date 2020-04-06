@@ -1052,7 +1052,7 @@ is divided into following sections:
     <target depends="-pre-single-jar" if="module.jar.filename" name="-make-single-jar">
         <jar basedir="${module.dir}" compress="${jar.compress}" destfile="${dist.dir}/${module.jar.filename}" excludes="${dist.archive.excludes}" manifestencoding="UTF-8"/>
     </target>
-    <target depends="init,compile,-pre-pre-jar,-pre-jar" if="do.archive" name="-do-jar-jar" unless="do.mkdist">
+    <target depends="init,compile,-pre-pre-jar,-pre-jar,-main-module-check-condition" if="do.archive" name="-do-jar-jar" unless="do.mkdist">
         <property location="${build.modules.dir}" name="build.modules.dir.resolved"/>
         <dirset dir="${build.modules.dir.resolved}" id="do.jar.dirs" includes="*"/>
         <pathconvert property="do.jar.dir.list" refid="do.jar.dirs">
@@ -1068,6 +1068,17 @@ is divided into following sections:
                 <param location="${entry}" name="module.dir"/>
             </antcall>
         </j2semodularproject1:for-paths>
+        <condition property="named.module.internal">
+            <and>
+                <isset property="module.name"/>
+                <length length="0" string="${module.name}" when="greater"/>
+            </and>
+        </condition>
+        <condition property="unnamed.module.internal">
+            <not>
+                <isset property="named.module.internal"/>
+            </not>
+        </condition>
         <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
         <property location="${dist.jar}" name="dist.jar.resolved"/>
         <pathconvert property="run.classpath.with.dist.jar">
@@ -1078,7 +1089,7 @@ is divided into following sections:
             <path path="${run.modulepath}"/>
             <map from="${build.classes.dir.resolved}" to="${dist.jar.resolved}"/>
         </pathconvert>
-        <condition else="" property="jar.usage.message.module.path" value=" -modulepath ${run.modulepath.with.dist.jar}">
+        <condition else="" property="jar.usage.message.module.path" value=" --module-path ${run.modulepath.with.dist.jar}">
             <and>
                 <isset property="modules.supported.internal"/>
                 <length length="0" string="${run.modulepath.with.dist.jar}" when="greater"/>
@@ -1221,6 +1232,18 @@ is divided into following sections:
         </pathconvert>
     </target>
     <target depends="-main-module-set" name="-main-module-check">
+        <fail message="Could not determine module of the main class and module.name is not set">
+            <condition>
+                <or>
+                    <not>
+                        <isset property="module.name"/>
+                    </not>
+                    <length length="0" string="${module.name}" when="equal"/>
+                </or>
+            </condition>
+        </fail>
+    </target>
+    <target depends="-main-module-set" if="main.class.available" name="-main-module-check-condition">
         <fail message="Could not determine module of the main class and module.name is not set">
             <condition>
                 <or>
