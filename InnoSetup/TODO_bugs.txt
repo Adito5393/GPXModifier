@@ -1,3 +1,4 @@
 1. current iss file will copy the bat file from /bin folder to 1 level higher and use that for shortcut to Desktop -> results in bat not working!
 Make new bat in root folder for iss to use as main EXE file!
 1. FIXED -> copy/Paste GPXModifierRuner.bat to NEW VERSION dist\jlink\GPXModifier
+1: Solved
