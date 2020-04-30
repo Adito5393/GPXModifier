@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Action;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -121,8 +122,7 @@ public class SettingsUI extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(chooseFile)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(ok)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(cancel)
@@ -130,18 +130,20 @@ public class SettingsUI extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(filePath))
+                                .addComponent(jLabel3)
+                                .addGap(18, 18, 18)
+                                .addComponent(fileNewName, javax.swing.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(timeOffsetBox, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addGap(18, 18, 18)
-                                .addComponent(fileNewName, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)))
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(filePath)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(chooseFile)))
                         .addGap(6, 6, 6))))
         );
         layout.setVerticalGroup(
@@ -150,7 +152,8 @@ public class SettingsUI extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(filePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(filePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chooseFile))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
@@ -161,7 +164,6 @@ public class SettingsUI extends javax.swing.JDialog {
                     .addComponent(timeOffsetBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chooseFile)
                     .addComponent(ok)
                     .addComponent(cancel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -175,21 +177,26 @@ public class SettingsUI extends javax.swing.JDialog {
     }//GEN-LAST:event_timeOffsetBoxActionPerformed
 
     private void chooseFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseFileActionPerformed
-        JFileChooser chooseFile = new JFileChooser();
+        JFileChooser chooserFile = new JFileChooser();
+        Action details = chooserFile.getActionMap().get("viewTypeDetails");
+        details.actionPerformed(null);
         
         FileNameExtensionFilter txtFilter = new FileNameExtensionFilter("gps extension","gpx");
-        chooseFile.addChoosableFileFilter(txtFilter);       
-        chooseFile.setCurrentDirectory(new File(filePath.getText()));
-        chooseFile.setAcceptAllFileFilterUsed(false);
-        chooseFile.setMultiSelectionEnabled(false);
-        chooseFile.setFileFilter(txtFilter);
-        
+        chooserFile.addChoosableFileFilter(txtFilter);       
+        chooserFile.setCurrentDirectory(new File(filePath.getText()));
+        chooserFile.setAcceptAllFileFilterUsed(false);
+        chooserFile.setMultiSelectionEnabled(false);
+        chooserFile.setFileFilter(txtFilter);
+
         int result = -1;
-        result = chooseFile.showOpenDialog(this);
+        SortDateThread threadSort = new SortDateThread(chooserFile);
+        threadSort.start();
+        
+        result = chooserFile.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
-            String file = chooseFile.getSelectedFile().getPath();
+            String file = chooserFile.getSelectedFile().getPath();
             filePath.setText(file); 
-            String oldName = chooseFile.getSelectedFile().getName();
+            String oldName = chooserFile.getSelectedFile().getName();
             String newName = oldName.substring(0,oldName.lastIndexOf(".gpx"));
             fileNewName.setText(newName+"_V2.gpx");
             String DirRoot = file.substring(0,file.lastIndexOf(File.separator));
@@ -301,6 +308,9 @@ public class SettingsUI extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 SettingsUI dialog = new SettingsUI(new javax.swing.JFrame(), true);
+                
+                
+                
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -310,6 +320,8 @@ public class SettingsUI extends javax.swing.JDialog {
                 dialog.setVisible(true);
             }
         });
+        
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
